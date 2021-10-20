@@ -3,9 +3,6 @@
   "version": "1.0.0",
   "description": "Template editor based on https://github.com/42coders/document-templates and CKEditor",
   "main": "index.js",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
   "keywords": [
     "ckeditor",
     "flyerheaven",
@@ -15,6 +12,6 @@
   "author": "techgroup@flyerheaven.de",
   "license": "ISC",
   "dependencies": {
-    "ckeditor": "^4.12.1"
+    "@ckeditor/ckeditor5-build-classic": "^30.0.0"
   }
 }

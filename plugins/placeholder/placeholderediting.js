@@ -59,7 +59,8 @@ export default class PlaceholderEditing extends Plugin {
             },
             model: ( viewElement, { writer: modelWriter } ) => {
                 // Extract the "name" from "{name}".
-                const name = viewElement.getChild( 0 ).data.slice( 1, -1 );
+                // TODO: regex replace
+                const name = viewElement.getChild( 0 ).data.slice( 3, -3 );
 
                 return modelWriter.createElement( 'placeholder', { name } );
             }

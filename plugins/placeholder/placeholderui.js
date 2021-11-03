@@ -6,52 +6,59 @@ import { addListToDropdown, createDropdown } from '@ckeditor/ckeditor5-ui/src/dr
 import Collection from '@ckeditor/ckeditor5-utils/src/collection';
 import Model from '@ckeditor/ckeditor5-ui/src/model';
 
+// Placeholder Instance-Classes
+import PlaceholderGroup from './instance/PlaceholderGroup';
+
 export default class PlaceholderUI extends Plugin {
     init() {
         const editor = this.editor;
-        const t = editor.t;
-        const placeholderNames = editor.config.get( 'placeholderConfig.placeholders' );
+        const placeholderGroups = [];
+        const placeholders = editor.config.get('placeholderConfig.placeholders');
 
-        // The "placeholder" dropdown must be registered among the UI components of the editor
-        // to be displayed in the toolbar.
-        editor.ui.componentFactory.add( 'placeholder', locale => {
-            const dropdownView = createDropdown( locale );
+        placeholders.forEach((placeholderData) => {
+            let placeholderGroup = new PlaceholderGroup(placeholderData);
+            placeholderGroups.push(placeholderGroup);
+        });
 
-            // Populate the list in the dropdown with items.
-            addListToDropdown( dropdownView, getDropdownItemsDefinitions( placeholderNames ) );
+        placeholderGroups.forEach((placeholderGroup, index) => {
+            // The "placeholder" dropdown must be registered among the UI components of the editor
+            // to be displayed in the toolbar.
+            editor.ui.componentFactory.add( 'placeholder_' + index, locale => {
+                const dropdownView = createDropdown( locale );
 
-            dropdownView.buttonView.set( {
-                // The t() function helps localize the editor. All strings enclosed in t() can be
-                // translated and change when the language of the editor changes.
-                label: t( 'Platzhalter' ),
-                tooltip: true,
-                withText: true
+                // Populate the list in the dropdown with items.
+                addListToDropdown( dropdownView, getDropdownItemsDefinitions( placeholderGroup.getPlaceholders() ) );
+
+                dropdownView.buttonView.set( {
+                    label: placeholderGroup.getName(),
+                    withText: true
+                } );
+
+                // Disable the placeholder button when the command is disabled.
+                const command = editor.commands.get( 'placeholder' );
+                dropdownView.bind( 'isEnabled' ).to( command );
+
+                // Execute the command when the dropdown item is clicked (executed).
+                this.listenTo( dropdownView, 'execute', evt => {
+                    editor.execute( 'placeholder', { value: evt.source.commandParam } );
+                    editor.editing.view.focus();
+                } );
+
+                return dropdownView;
             } );
-
-            // Disable the placeholder button when the command is disabled.
-            const command = editor.commands.get( 'placeholder' );
-            dropdownView.bind( 'isEnabled' ).to( command );
-
-            // Execute the command when the dropdown item is clicked (executed).
-            this.listenTo( dropdownView, 'execute', evt => {
-                editor.execute( 'placeholder', { value: evt.source.commandParam } );
-                editor.editing.view.focus();
-            } );
-
-            return dropdownView;
-        } );
+        })
     }
 }
 
-function getDropdownItemsDefinitions( placeholderNames ) {
+function getDropdownItemsDefinitions( placeholderGroup ) {
     const itemDefinitions = new Collection();
 
-    for ( const name of placeholderNames ) {
+    for ( const placeholder of placeholderGroup ) {
         const definition = {
             type: 'button',
             model: new Model( {
-                commandParam: name,
-                label: name,
+                commandParam: placeholder.data,
+                label: placeholder.data,
                 withText: true
             } )
         };

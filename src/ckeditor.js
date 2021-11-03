@@ -27,17 +27,21 @@ import TextTransformation from '@ckeditor/ckeditor5-typing/src/texttransformatio
 
 // Custom plugins
 import Placeholder from '../plugins/placeholder/placeholder';
+import Tag from '../plugins/tag/tag';
 
 export default class TemplateEditor {
-    constructor(element, placeholders) {
+    constructor(element, placeholders, allowedTags = ['if', 'for']) {
         this.element = element;
         this.placeholders = placeholders;
+        this.allowedTags = allowedTags;
     }
 
     init() {
         ClassicEditor
             .create(this.element, {
 				plugins: [
+					Placeholder,
+					Tag,
 					Autoformat,
 					BlockQuote,
 					Bold,
@@ -59,10 +63,10 @@ export default class TemplateEditor {
 					Table,
 					TableToolbar,
 					TextTransformation,
-					Placeholder
 				],
                 toolbar: [
 					'placeholder',
+					'tag',
 					'|',
 					'heading',
 					'|',
@@ -82,8 +86,12 @@ export default class TemplateEditor {
 					'undo',
 					'redo',
 				],
+				// placeholderConfig: {
+				// 	types: [ 'first_name', 'last_name', 'company', 'street' ]
+				// },
 				placeholderConfig: {
-					types: [ 'first_name', 'last_name', 'company', 'street' ]
+					placeholders: this.placeholders,
+					allowedTags: this.allowedTags
 				},
 				language: 'de-ch',
 				image: {

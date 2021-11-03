@@ -24,9 +24,6 @@ export default class PlaceholderEditing extends Plugin {
             'viewToModelPosition',
             viewToModelPositionOutsideModelElement( this.editor.model, viewElement => viewElement.hasClass( 'placeholder' ) )
         );
-        // this.editor.config.define( 'placeholderConfig', {
-        //     types: [ 'date', 'first name', 'surname' ]
-        // } );
     }
 
     _defineSchema() {
@@ -54,6 +51,7 @@ export default class PlaceholderEditing extends Plugin {
     _defineConverters() {
         const conversion = this.editor.conversion;
 
+        // Conversion for Placeholder
         conversion.for( 'upcast' ).elementToElement( {
             view: {
                 name: 'span',

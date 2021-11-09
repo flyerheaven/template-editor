@@ -6,8 +6,6 @@ name: Flyerheaven Template-Editor
 on:
   push:
     branches: [ master ]
-  pull_request:
-    branches: '*'
 
 jobs:
   publish:

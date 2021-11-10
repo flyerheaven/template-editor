@@ -25,6 +25,8 @@ import Table from '@ckeditor/ckeditor5-table/src/table.js';
 import TableToolbar from '@ckeditor/ckeditor5-table/src/tabletoolbar.js';
 import TextTransformation from '@ckeditor/ckeditor5-typing/src/texttransformation.js';
 
+import CKEditorInspector from '@ckeditor/ckeditor5-inspector';
+
 // Custom plugins
 import Placeholder from '../plugins/placeholder/placeholder';
 import Tag from '../plugins/tag/tag';
@@ -91,9 +93,6 @@ export default class TemplateEditor {
 					items: toolbar,
 					shouldNotGroupWhenFull: true
 				},
-				// placeholderConfig: {
-				// 	types: [ 'first_name', 'last_name', 'company', 'street' ]
-				// },
 				placeholderConfig: {
 					placeholders: this.placeholders,
 					allowedTags: this.allowedTags
@@ -115,7 +114,7 @@ export default class TemplateEditor {
 					]
 				}
             })
-			.then((editor) => console.log('editor: ', editor))
+			.then((editor) => CKEditorInspector.attach(editor))
             .catch(error => {
                 console.log(`error`, error)
             });

@@ -2,21 +2,23 @@ import Command from '@ckeditor/ckeditor5-core/src/command';
 
 export default class PlaceholderCommand extends Command {
     execute( { value } ) {
+        // executed when dropdown clicked
         const editor = this.editor;
         const selection = editor.model.document.selection;
 
         editor.model.change( writer => {
-            // Create a <placeholder> elment with the "name" attribute (and all the selection attributes)...
-            const placeholder = writer.createElement( 'placeholder', {
+            // Create a <placeholder> element with the "name" attribute (and all the selection attributes)...
+            const placeholderElement = writer.createElement( 'placeholder', {
                 ...Object.fromEntries( selection.getAttributes() ),
                 name: value
             } );
+            writer.appendElement('paragraph', placeholderElement);
 
             // ... and insert it into the document.
-            editor.model.insertContent( placeholder );
+            editor.model.insertContent( placeholderElement );
 
             // Put the selection on the inserted element.
-            writer.setSelection( placeholder, 'on' );
+            writer.setSelection( placeholderElement, 'in');
         } );
     }
 

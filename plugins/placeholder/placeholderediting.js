@@ -2,8 +2,8 @@
 import Plugin from '@ckeditor/ckeditor5-core/src/plugin';
 
 import {
-    toWidget,
-    viewToModelPositionOutsideModelElement
+    viewToModelPositionOutsideModelElement,
+    toWidgetEditable
 } from '@ckeditor/ckeditor5-widget/src/utils';
 import Widget from '@ckeditor/ckeditor5-widget/src/widget';
 
@@ -33,6 +33,8 @@ export default class PlaceholderEditing extends Plugin {
             // Allow wherever text is allowed:
             allowWhere: '$text',
 
+            allowContentOf: '$root',
+
             // The placeholder will act as an inline node:
             isInline: true,
 
@@ -60,7 +62,8 @@ export default class PlaceholderEditing extends Plugin {
             model: ( viewElement, { writer: modelWriter } ) => {
                 // Extract the "name" from "{name}".
                 // TODO: regex replace
-                const name = viewElement.getChild( 0 ).data.slice( 3, -3 );
+                // const name = viewElement.getChild( 0 ).data.slice( 3, -3 );
+                const name = viewElement.getChild( 0 ).data;
 
                 return modelWriter.createElement( 'placeholder', { name } );
             }
@@ -72,7 +75,7 @@ export default class PlaceholderEditing extends Plugin {
                 const widgetElement = createPlaceholderView( modelItem, viewWriter );
 
                 // Enable widget handling on a placeholder element inside the editing view.
-                return toWidget( widgetElement, viewWriter );
+                return toWidgetEditable( widgetElement, viewWriter );
             }
         } );
 
@@ -83,17 +86,15 @@ export default class PlaceholderEditing extends Plugin {
 
         // Helper method for both downcast converters.
         function createPlaceholderView( modelItem, viewWriter ) {
-            const name = modelItem.getAttribute( 'name' );
+            const name = modelItem.getAttribute('name');
 
-            const placeholderView = viewWriter.createContainerElement( 'span', {
+            const placeholderView = viewWriter.createEditableElement( 'span', {
                 class: 'placeholder'
-            }, {
-                isAllowedInsideAttributeElement: true
-            } );
+            });
 
             // Insert the placeholder name (as a text).
-            const innerText = viewWriter.createText( '{{ ' + name + ' }}' );
-            viewWriter.insert( viewWriter.createPositionAt( placeholderView, 0 ), innerText );
+            const innerText = viewWriter.createText(name);
+            viewWriter.insert( viewWriter.createPositionAt( placeholderView, 'end'), innerText );
 
             return placeholderView;
         }

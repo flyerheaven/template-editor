@@ -57,10 +57,10 @@ function getDropdownItemsDefinitions( placeholderGroup ) {
         const definition = {
             type: 'button',
             model: new Model( {
-                commandParam: placeholder.data,
+                commandParam: placeholder.getPlaceholder(),
                 label: placeholder.data,
-                withText: true
-            } )
+                withText: true,
+            })
         };
 
         // Add the item definition to the collection.

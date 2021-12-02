@@ -58,7 +58,7 @@ export default class TemplateEditor {
 			'undo',
 			'redo',
 		];
-		const placeholderToolbar = this.placeholders.map((v, i) => 'placeholder_' + i);
+		const placeholderToolbar = this.placeholders.map((v, i) => 'placeholder_select_' + i);
 		toolbar = placeholderToolbar.concat(toolbar);
 
 		const plugins = [

@@ -18,85 +18,78 @@ export default class PlaceholderEditing extends Plugin {
         this._defineSchema();
         this._defineConverters();
 
-        this.editor.commands.add( 'placeholder', new PlaceholderCommand( this.editor ) );
-
         this.editor.editing.mapper.on(
             'viewToModelPosition',
             viewToModelPositionOutsideModelElement( this.editor.model, viewElement => viewElement.hasClass( 'placeholder' ) )
         );
+
+        this.editor.commands.add( 'insertPlaceholder', new PlaceholderCommand( this.editor ) );
     }
 
     _defineSchema() {
         const schema = this.editor.model.schema;
 
-        schema.register( 'placeholder', {
-            // Allow wherever text is allowed:
-            allowWhere: '$text',
-
-            allowContentOf: '$root',
-
-            // The placeholder will act as an inline node:
-            isInline: true,
-
-            // The inline widget is self-contained so it cannot be split by the caret and it can be selected:
+        schema.register('placeholder', {
             isObject: true,
-
-            // The inline widget can have the same attributes as text (for example linkHref, bold).
-            allowAttributesOf: '$text',
-
-            // The placeholder can have many types, like date, name, surname, etc:
-            allowAttributes: [ 'name' ],
-
-        } );
+            allowWhere: '$block',
+            allowAttributes: [ 'name' ]
+        });
     }
 
     _defineConverters() {
         const conversion = this.editor.conversion;
 
-        // Conversion for Placeholder
+        // <placeholder> converters ((data) view → model)
         conversion.for( 'upcast' ).elementToElement( {
             view: {
                 name: 'span',
-                classes: [ 'placeholder' ]
+                classes: 'placeholder'
             },
             model: ( viewElement, { writer: modelWriter } ) => {
-                // Extract the "name" from "{name}".
-                // TODO: regex replace
-                // const name = viewElement.getChild( 0 ).data.slice( 3, -3 );
                 const name = viewElement.getChild( 0 ).data;
+                console.log('name: ', name);
 
                 return modelWriter.createElement( 'placeholder', { name } );
             }
         } );
 
-        conversion.for( 'editingDowncast' ).elementToElement( {
+        // <placeholder> converters (model → data view)
+        conversion.for( 'dataDowncast' ).elementToElement( {
             model: 'placeholder',
-            view: ( modelItem, { writer: viewWriter } ) => {
-                const widgetElement = createPlaceholderView( modelItem, viewWriter );
-
-                // Enable widget handling on a placeholder element inside the editing view.
-                return toWidgetEditable( widgetElement, viewWriter );
+            view: ( modelElement, { writer: viewWriter } ) => {
+                // In the data view, the model <productPreview> corresponds to:
+                //
+                // <section class="product" data-id="..."></section>
+                const text = modelElement.getAttribute('name');
+                return viewWriter.createText(text);
             }
         } );
 
-        conversion.for( 'dataDowncast' ).elementToElement( {
+        // <productPreview> converters (model → editing view)
+        conversion.for( 'editingDowncast' ).elementToElement( {
             model: 'placeholder',
-            view: ( modelItem, { writer: viewWriter } ) => createPlaceholderView( modelItem, viewWriter )
+            view: ( modelElement, { writer: viewWriter } ) => {
+                console.log('modelElement: ', modelElement);
+                const name = modelElement.getAttribute( 'name' );
+
+                // The outermost <section class="product" data-id="..."></section> element.
+                // const section = viewWriter.createEditableElement( 'placeholder', {
+                //     class: 'placeholder',
+                //     'name': name
+                // } );
+                const innerText = viewWriter.createText( name);
+                const section = viewWriter.createEditableElement('span', {
+                    class: 'placeholder',
+                    name,
+                } );
+                // const section = viewWriter.createRawElement( 'span', { name }, function( domElement ) {
+                //     domElement.innerHTML = '<b>This is the raw content of the raw element.</b>';
+                // } );
+
+                viewWriter.insert( viewWriter.createPositionAt(section, 0 ), innerText );
+
+                return toWidgetEditable( section, viewWriter);
+            }
         } );
-
-        // Helper method for both downcast converters.
-        function createPlaceholderView( modelItem, viewWriter ) {
-            const name = modelItem.getAttribute('name');
-
-            const placeholderView = viewWriter.createEditableElement( 'span', {
-                class: 'placeholder'
-            });
-
-            // Insert the placeholder name (as a text).
-            const innerText = viewWriter.createText(name);
-            viewWriter.insert( viewWriter.createPositionAt( placeholderView, 'end'), innerText );
-
-            return placeholderView;
-        }
     }
 }

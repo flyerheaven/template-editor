@@ -23,7 +23,7 @@ export default class PlaceholderUI extends Plugin {
         placeholderGroups.forEach((placeholderGroup, index) => {
             // The "placeholder" dropdown must be registered among the UI components of the editor
             // to be displayed in the toolbar.
-            editor.ui.componentFactory.add( 'placeholder_' + index, locale => {
+            editor.ui.componentFactory.add( 'placeholder_select_' + index, locale => {
                 const dropdownView = createDropdown( locale );
 
                 // Populate the list in the dropdown with items.
@@ -35,12 +35,12 @@ export default class PlaceholderUI extends Plugin {
                 } );
 
                 // Disable the placeholder button when the command is disabled.
-                const command = editor.commands.get( 'placeholder' );
+                const command = editor.commands.get( 'insertPlaceholder' );
                 dropdownView.bind( 'isEnabled' ).to( command );
 
                 // Execute the command when the dropdown item is clicked (executed).
                 this.listenTo( dropdownView, 'execute', evt => {
-                    editor.execute( 'placeholder', { value: evt.source.commandParam } );
+                    editor.execute( 'insertPlaceholder', { value: evt.source.commandParam, name: evt.source.label } );
                     editor.editing.view.focus();
                 } );
 

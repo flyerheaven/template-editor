@@ -16,7 +16,6 @@ In order to rebuild the application you need to install all dependencies first. 
 npm install
 ```
 
-
 Make sure that you have the `node` and `npm` installed first. If not, then follow the instructions on the [Node.js documentation page](https://nodejs.org/en/).
 
 ## Author
